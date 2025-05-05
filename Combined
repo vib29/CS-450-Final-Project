@@ -125,11 +125,40 @@ class App extends Component {
 
         // Histogram Data
         const histogramDataMap = {
-            Oldpeak: [0.0, 1.0, 2.0, 0.5, 3.0, 0.2, 0.0, 1.5, 2.5, 1.0, 0.3, 0.6, 4.0, 0.8, 2.3, 0.1, 0.4, 0.0, 5.5, 2.8, 0.0],
-            Age: [40, 49, 37, 48, 54, 65, 66, 67, 70, 74, 52, 44, 60, 63, 45, 50, 51, 59, 55, 61, 41],
-            MaxHR: [172, 156, 98, 108, 122, 114, 120, 138, 115, 110, 164, 145, 142, 130, 150, 140, 132, 149, 134, 158, 163],
-            Cholesterol: [289, 180, 283, 214, 195, 268, 250, 240, 275, 300, 250, 225, 260, 255, 200, 190, 230, 210, 260, 310, 270],
-            RestingBP: [140, 160, 130, 138, 150, 120, 110, 105, 125, 135, 140, 130, 128, 145, 115, 118, 126, 122, 150, 132, 128]
+            Oldpeak: {
+                data: [0.0, 1.0, 2.0, 0.5, 3.0, 0.2, 0.0, 1.5, 2.5, 1.0,
+                    0.3, 0.6, 4.0, 0.8, 2.3, 0.1, 0.4, 0.0, 5.5, 2.8, 0.0],
+                label: "ST Depression (mm)",
+                fmt: d3.format(".1f")          // 0.0 → “0.0”
+            },
+
+            Age: {
+                data: [40, 49, 37, 48, 54, 65, 66, 67, 70, 74, 52,
+                    44, 60, 63, 45, 50, 51, 59, 55, 61, 41],
+                label: "Age (years)",
+                fmt: d3.format("d")            // integer
+            },
+
+            MaxHR: {
+                data: [172, 156, 98, 108, 122, 114, 120, 138, 115, 110,
+                    164, 145, 142, 130, 150, 140, 132, 149, 134, 158, 163],
+                label: "Maximum Heart Rate (bpm)",
+                fmt: d3.format("d")
+            },
+
+            Cholesterol: {
+                data: [289, 180, 283, 214, 195, 268, 250, 240, 275, 300,
+                    250, 225, 260, 255, 200, 190, 230, 210, 260, 310, 270],
+                label: "Cholesterol (mg/dL)",
+                fmt: d3.format("d")
+            },
+
+            RestingBP: {
+                data: [140, 160, 130, 138, 150, 120, 110, 105, 125, 135,
+                    140, 130, 128, 145, 115, 118, 126, 122, 150, 132, 128],
+                label: "Resting BP (mm Hg)",
+                fmt: d3.format("d")
+            }
         };
 
         // These are the dimensions of the total dashboard
@@ -391,7 +420,7 @@ class App extends Component {
 
             //Histogram
             function drawHistogram(column) {
-                const data = histogramDataMap[column];
+                const { data, label, fmt } = histogramDataMap[column];
                 const histogramSvg = d3.select("#mysvg").select(".histogramChart");
                 histogramSvg.attr("transform", `translate(${margin.left + 600}, ${innerHeight + margin.top + 130})`);
                 histogramSvg.selectAll("*").remove();
@@ -416,6 +445,7 @@ class App extends Component {
                 const chart = histogramSvg.append("g")
                     .attr("transform", `translate(${marginHist.left}, ${marginHist.top})`);
 
+
                 chart.selectAll("rect")
                     .data(bins)
                     .join("rect")
@@ -427,10 +457,18 @@ class App extends Component {
 
                 chart.append("g")
                     .attr("transform", `translate(0,${heightHist})`)
-                    .call(d3.axisBottom(x));
+                    .call(d3.axisBottom(x).tickFormat(fmt));
 
                 chart.append("g")
                     .call(d3.axisLeft(y).ticks(5));
+
+
+                chart.append("text")
+                    .attr("x", widthHist / 2)
+                    .attr("y", heightHist + 45)
+                    .attr("text-anchor", "middle")
+                    .style("font-size", "13px")
+                    .text(label);
 
                 chart.append("text")
                     .attr("x", widthHist / 2)
@@ -455,7 +493,7 @@ class App extends Component {
     render() {
         return (
             <div className="parent" style={{ position: "relative" }}>
-                <div style={{ position: "absolute", top: "670px", left: "800px", zIndex: 10, padding: "2px", borderRadius: "5px" }}>
+                <div style={{ position: "absolute", top: "390px", left: "800px", zIndex: 10, padding: "2px", borderRadius: "5px" }}>
                     <label htmlFor="histogramDropdown" style={{marginRight: "10px", fontSize: "14px", fontWeight: "bold"}}>Pick Attribute:</label>
                     <select id="histogramDropdown" style={{fontSize: "14px", height: "25px", width: "80px"}}>
                         <option value="Oldpeak">Oldpeak</option>
