@@ -4,20 +4,25 @@ import * as d3 from "d3";
 class Scatter extends Component {
   constructor(props) {
     super(props);
-    this.filter_data = [];
+    this.state = {
+      filter_data: [],
+    };
     this.colors = {"Y":"blue", "N":"red"};
   }
   componentDidUpdate(prevProps) {
     if (prevProps.data1 !== this.props.data1) {
-      this.draw(); 
-      this.renderLegend();
+      this.draw();
     }
+    this.renderCounter();
     console.log(this.props.data1[0]);
   }
 
   componentDidMount() {
-    this.draw();
-    this.renderLegend();
+    if (this.props.data1.length === 0) {
+      this.draw();
+      this.renderLegend();
+      this.renderCounter();
+    }
   }
 
   draw(){
@@ -44,13 +49,13 @@ class Scatter extends Component {
     const yAxis = d3.axisLeft(yScale);
 
   
-    innerChart.selectAll(".x-axis").data([null]) // Just a placeholder for the axis, as we're not using dynamic data for it.
-      .join("g").attr('class','x-axis') //we have to assign the class we use for selection
+    innerChart.selectAll(".x-axis").data([null]) 
+      .join("g").attr('class','x-axis') 
       .attr("transform", `translate(0, ${innerHeight})`)
       .call(xAxis);
 
-    innerChart.selectAll(".y-axis").data([null]) // Similarly, just a placeholder for the axis.
-      .join("g").attr('class','y-axis') //we have to assign the class we use for selection
+    innerChart.selectAll(".y-axis").data([null]) 
+      .join("g").attr('class','y-axis')
       .call(yAxis);
 
     // Add the circles (data points) to the inner chart
@@ -72,9 +77,9 @@ class Scatter extends Component {
         console.log(x0,x1, y0, y1);
         return x >= x0 && x <= x1 && y >= y0 && y <= y1;
       });
-      this.filter_data=filter_data;
+      this.setState({ filter_data: filter_data });
 
-      console.log(this.filter_data);
+      console.log(this.state.filter_data);
 
     });  
     d3.select('.scatter_container .innerChart').call(brush);
@@ -84,7 +89,8 @@ class Scatter extends Component {
       .attr("text-anchor", "middle")
       .attr("x", width / 2)
       .attr("y", margin.top-20)
-      .style("font-family", "Times New Roman") 
+      .style("font-family", "sans-serif") 
+      .style("font-weight", "bold")
       .style("font-size", "18px")
       .text("Resting BP vs Cholesterol (colored by Exercise Angina)");
 
@@ -103,31 +109,27 @@ class Scatter extends Component {
       .attr("transform", "rotate(-90)")
       .style("font-family", "Times New Roman") 
       .style("font-size", "18px")
-      .attr("x", -height / 2)
+      .attr("x", -height / 2 - 30)
       .attr("y", margin.left - 30)
       .text("Cholesterol");
   }
 
   renderLegend = () =>{
-    
-    var margin ={left:50,right:150,top:70,bottom:10} //Higher Margin right to shift the legend left, Higher margin top to shift the legend down
-    const width=600; //Taken from scatter_container
-    var innerWidth = width - margin.left - margin.right
     const svg = d3.select(".scatter_container")
     const legend = svg.append("g").attr("class", "legend")
-    .attr("transform", `translate(${margin.left + 50}, ${margin.top+20})`);
+    .attr("transform", `translate(${100}, ${90})`);
 
     const legendData = Object.entries(this.colors);
 
-    const legend_x = [-20, 110]; // X position of the legend rectangles
-    const legend_y = [-40, 40]; // Y position of the legend rectangles
+    const legend_x = [-20, 110]; // Relative X position of the legend vertices
+    const legend_y = [-40, 40]; // Relative Y position of the legend vertices
 
     legend.append("rect")
       .attr("width", legend_x[1] - legend_x[0])
       .attr("height", legend_y[1] - legend_y[0])
       .attr("x", legend_x[0])
       .attr("y", legend_y[0]) 
-      .attr("fill", "#D3D3D3")
+      .attr("fill", "#FAFAFA")
       .attr("stroke", "black")
       .attr("stroke-width", 1);
 
@@ -155,52 +157,54 @@ class Scatter extends Component {
       .text(d => d[0]);
   }
 
-  // renderCounter = () =>{
-    
-  //   var margin ={left:50,right:150,top:70,bottom:10} //Higher Margin right to shift the legend left, Higher margin top to shift the legend down
-  //   const width=600; //Taken from scatter_container
-  //   var innerWidth = width - margin.left - margin.right
-  //   const svg = d3.select(".scatter_container")
-  //   const legend = svg.append("g").attr("class", "legend")
-  //   .attr("transform", `translate(${margin.left + 50}, ${margin.top+20})`);
+  renderCounter = () =>{
+    const svg = d3.select(".scatter_container")
+    svg.selectAll(".counter").remove();
+    const legend = svg.append("g").attr("class", "counter")
+    .attr("transform", `translate(${90}, ${190})`);
 
-  //   const legendData = Object.entries(this.colors);
+    const legendData = Object.entries(this.colors);
 
-  //   const legend_x = [-20, 110]; // X position of the legend rectangles
-  //   const legend_y = [-40, 40]; // Y position of the legend rectangles
+    const legend_x = [-20, 130]; // Relative X position of the legend vertices
+    const legend_y = [-20, 40]; // Relative Y position of the legend vertices
+    console.log(legend.selectAll(".counter").nodes())
 
-  //   legend.append("rect")
-  //     .attr("width", legend_x[1] - legend_x[0])
-  //     .attr("height", legend_y[1] - legend_y[0])
-  //     .attr("x", legend_x[0])
-  //     .attr("y", legend_y[0]) 
-  //     .attr("fill", "#D3D3D3")
-  //     .attr("stroke", "black")
-  //     .attr("stroke-width", 1);
+    const color_list=["blue", "red"];
 
-  //   legend.append("text")
-  //       .attr("x", 0)
-  //       .attr("y", -20) 
-  //       .attr("font-size", "14px")
-  //       .attr("font-weight", "bold")
-  //       .text("Exercise Angina"); 
 
-  //   legend.selectAll("circle")
-  //     .data(legendData)
-  //     .join("circle")
-  //     .attr("r", 5)
-  //     .attr("cx", 0)
-  //     .attr("cy", (d, i) => i * 20)
-  //     .attr("fill", d => d[1]);
+    legend.append("rect")
+      .attr("width", legend_x[1] - legend_x[0])
+      .attr("height", legend_y[1] - legend_y[0])
+      .attr("x", legend_x[0])
+      .attr("y", legend_y[0]) 
+      .attr("fill", "#EEEEEE")
+      .attr("stroke", "black")
+      .attr("stroke-width", 1);
 
-  //   legend.selectAll("text.color-label")
-  //     .data(legendData)
-  //     .enter()
-  //     .append("text")
-  //     .attr("x", 20)
-  //     .attr("y", (d, i) => i * 20 + 2.5)
-  //     .text(d => d[0]);
-  // }
+    // legend.append("text")
+    //     .attr("x", 0)
+    //     .attr("y", -20) 
+    //     .attr("font-size", "14px")
+    //     .attr("font-weight", "bold")
+    //     .text("Exercise Angina"); 
+
+    legend.selectAll("circle")
+      .data(legendData)
+      .join("circle")
+      .attr("r", 5)
+      .attr("cx", 0)
+      .attr("cy", (d, i) => i * 20)
+      .attr("fill", d => d[1]);
+
+    legend.selectAll("text.color-label")
+      .data(legendData)
+      .enter()
+      .append("text")
+      .attr("x", 10)
+      .attr("y", (d, i) => i * 20 + 2.5)
+      .attr("font-size", "14px")
+      .text((d,i) => `Number of ${color_list[i]}: ${this.state.filter_data.filter(item => item.ExerciseAngina === d[0]).length}`);
+  }
 
   render() {
     return (

@@ -21,7 +21,9 @@ class App extends Component {
             ExerciseAngina:d.ExerciseAngina
           }
         }).then(function(csv_data) {
-          self.setState({ data: csv_data });
+          self.setState({ data: csv_data }, function() {
+            self.renderChart();
+          });
         })
         .catch(function(err) {
           console.log(err)
@@ -1112,7 +1114,7 @@ class App extends Component {
     .style("font-weight", "bold").style("font-family", "sans-serif").text("Maximum Heart Rate by Age")
 
     svg.append("text").attr("transform", "rotate(-90)").attr("y", 20-margin.left)
-    .attr("x", 400-(height/2)).attr("dy", "1em").style("text-anchor", "middle")
+    .attr("x", 275-(height/2)).attr("dy", "1em").style("text-anchor", "middle")
     .style("font-size", "15px").style("font-family", "sans-serif").text("Maximum Heart Rate")
 
     svg.append("text").attr("x", innerWidth/2).attr("y", innerHeight + margin.bottom+20)
@@ -1196,7 +1198,7 @@ barChartGroup.selectAll('g')
 
 // Titles for the bar chart
 barChartGroup.append("text").attr("transform", "rotate(-90)").attr("y", 20-margin.left)
-    .attr("x", 400-(height/2)).attr("dy", "1em").style("text-anchor", "middle")
+    .attr("x", 275-(height/2)).attr("dy", "1em").style("text-anchor", "middle")
     .style("font-size", "15px").text("Number of patients")
 
 barChartGroup.append("text").attr("class", "title").attr("x", innerWidth-400)
@@ -1437,11 +1439,13 @@ const tooltip = d3.select("body").selectAll(".tooltip").data([0]).join("div").at
           <svg id="piesvg" width="500" height="100">
             <g></g>
           </svg>
-
-          
-
         </div>
-        <div className="Scatter"><Scatter data1={this.state.data}></Scatter></div>
+
+        <div className="Scatter" style={{position: "absolute", left: "1200px", top: "400px"}}>
+        
+          <Scatter data1={this.state.data}></Scatter>
+        </div>
+
       </div>
 
     
